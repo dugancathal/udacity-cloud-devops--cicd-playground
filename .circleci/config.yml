@@ -1,10 +1,12 @@
 version: 2.1
+orbs:
+  aws-cli: circleci/aws-cli@1.4.1
 jobs:
   create_infrastructure:
-    docker:
-      - image: amazon/aws-cli
+    executor: aws-cli/default
     steps:
       - checkout
+      - aws-cli/install
       - run: ./.circleci/deploy-stack.sh "ci-stack" "${CIRCLE_WORKFLOW_ID}"
       - run: ./.circleci/create-inventory.sh "${CIRCLE_WORKFLOW_ID}"
       - save_cache:
