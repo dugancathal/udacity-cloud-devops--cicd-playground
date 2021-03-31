@@ -25,7 +25,7 @@ jobs:
           keys: [ "pip-packages-v1-{{ checksum 'deploy/requirements.txt' }}" ]
       - run: ./.circleci/install-ansible.sh
       - save_cache:
-          key: "pip-packages-v1-{{ checksum 'deploy/requirements.txt' }}"
+          key: pip-packages-v1-{{ checksum "deploy/requirements.txt" }}
           paths:
             - ".venv"
             - "/usr/local/bin"
