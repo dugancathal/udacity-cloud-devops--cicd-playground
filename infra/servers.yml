@@ -1,3 +1,7 @@
+Parameters:
+  DeployTag:
+    Description: Specifies the current deploy tag so we can rotate environments
+    Type: String
 Resources:
   Ec2Instance:
    Type: 'AWS::EC2::Instance'
@@ -6,6 +10,14 @@ Resources:
        - !Ref InstanceSecurityGroup
      KeyName: ci
      ImageId: 'ami-02701bcdc5509e57b'
+     Tags:
+       - Key: Name
+         Value:
+           Fn::Join:
+             - Server
+             - !Ref DeployTag
+       - Key: DeployTag
+         Value: !Ref DeployTag
   InstanceSecurityGroup:
    Type: 'AWS::EC2::SecurityGroup'
    Properties:
