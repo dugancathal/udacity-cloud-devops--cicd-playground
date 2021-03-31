@@ -21,6 +21,15 @@ jobs:
           keys: [ "inventory-{{ .Environment.CIRCLE_WORKFLOW_ID }}" ]
       - add_ssh_keys:
           fingerprints: [ "df:67:9a:d9:1d:8e:44:b7:38:da:68:6b:b3:1c:4d:c0" ]
+      - restore_cache:
+          keys: [ "pip-packages-v1-{{ checksum 'deploy/requirements.txt' }}" ]
+      - run: ./.circleci/install-ansible.sh
+      - save_cache:
+          key: "pip-packages-v1-{{ checksum 'deploy/requirements.txt' }}"
+          paths:
+            - ".venv"
+            - "/usr/local/bin"
+            - "/usr/local/lib/python3.6/site-packages"
       - run: ./.circleci/deploy-app.sh
 workflows:
   version: 2
