@@ -1,0 +1,14 @@
+version: 2.1
+jobs:
+  create_infrastructure:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      - run: |
+        aws cloudformation create-stack --stack-name=ci-stack --template-body=file://infra/servers.yml
+workflows:
+  version: 2
+  deploy:
+    jobs:
+      - create_infrastructure
+
