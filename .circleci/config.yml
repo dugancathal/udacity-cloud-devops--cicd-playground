@@ -5,7 +5,7 @@ jobs:
       - image: amazon/aws-cli
     steps:
       - run: |
-        aws cloudformation create-stack --stack-name=ci-stack --template-body=file://infra/servers.yml
+          aws cloudformation create-stack --stack-name=ci-stack --template-body=file://infra/servers.yml
 workflows:
   version: 2
   deploy:
