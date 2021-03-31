@@ -8,7 +8,7 @@ jobs:
       - run: ./.circleci/deploy-stack.sh "ci-stack" "${CIRCLE_WORKFLOW_ID}"
       - run: ./.circleci/create-inventory.sh "${CIRCLE_WORKFLOW_ID}"
       - save_cache:
-          key: "inventory-{{ .BuildNum }}"
+          key: "inventory-{{ .Environment.CIRCLE_WORKFLOW_ID }}"
           paths: [ "server-inventory.txt" ]
   deploy_app:
     docker:
@@ -16,7 +16,7 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          keys: [ "inventory-{{ .BuildNum }}" ]
+          keys: [ "inventory-{{ .Environment.CIRCLE_WORKFLOW_ID }}" ]
       - add_ssh_keys:
           fingerprints: [ "df:67:9a:d9:1d:8e:44:b7:38:da:68:6b:b3:1c:4d:c0" ]
       - run: ./.circleci/deploy-app.sh
