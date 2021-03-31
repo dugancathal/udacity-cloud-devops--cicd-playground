@@ -5,8 +5,8 @@ jobs:
       - image: amazon/aws-cli
     steps:
       - checkout
-      - run: ./.circleci/deploy-stack.sh "ci-stack" "${CIRCLE_BUILD_NUM}"
-      - run: ./.circleci/create-inventory.sh "${CIRCLE_BUILD_NUM}"
+      - run: ./.circleci/deploy-stack.sh "ci-stack" "${CIRCLE_WORKFLOW_ID}"
+      - run: ./.circleci/create-inventory.sh "${CIRCLE_WORKFLOW_ID}"
       - save_cache:
           key: "inventory-{{ .BuildNum }}"
           paths: [ "server-inventory.txt" ]
