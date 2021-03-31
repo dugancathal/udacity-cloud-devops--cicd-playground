@@ -6,7 +6,7 @@
     state: latest
     package: [ ruby, git ]
 - name: Install app
-  shell: git clone https://github.com:dugancathal/udacity-cloud-devops--cicd-playground server
+  shell: git clone https://github.com/dugancathal/udacity-cloud-devops--cicd-playground server
 - name: Install dependencies
   shell: cd server/app && bundle install
 - name: Start server
