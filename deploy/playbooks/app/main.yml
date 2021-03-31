@@ -1,0 +1,6 @@
+---
+- name: Deploy server
+  hosts: all
+  user: ubuntu
+  roles:
+    - setup

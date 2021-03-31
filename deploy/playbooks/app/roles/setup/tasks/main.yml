@@ -1,0 +1,13 @@
+---
+- name: Install ruby
+  become: true
+  apt:
+    update_cache: yes
+    state: latest
+    package: [ ruby, git ]
+- name: Install app
+  shell: git clone https://github.com:dugancathal/udacity-cloud-devops--cicd-playground server
+- name: Install dependencies
+  shell: cd server/app && bundle install
+- name: Start server
+  shell: rackup -D -o 0.0.0.0 -p 9292
