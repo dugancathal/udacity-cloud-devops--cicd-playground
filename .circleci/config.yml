@@ -6,7 +6,9 @@ jobs:
     steps:
       - checkout
       - run: |
-          aws cloudformation create-stack --stack-name=ci-stack --template-body=file://infra/servers.yml
+          STACK_NAME=ci-stack
+          aws cloudformation create-stack --stack-name=$STACK_NAME --template-body=file://infra/servers.yml
+          aws cloudformation wait stack-create-complete --stack-name=$STACK_NAME
 workflows:
   version: 2
   deploy:
