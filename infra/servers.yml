@@ -14,8 +14,9 @@ Resources:
        - Key: Name
          Value:
            Fn::Join:
-             - Server
-             - !Ref DeployTag
+             - ""
+             - - Server
+               - !Ref DeployTag
        - Key: DeployTag
          Value: !Ref DeployTag
   InstanceSecurityGroup:
