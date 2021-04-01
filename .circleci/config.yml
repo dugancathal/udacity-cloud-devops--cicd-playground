@@ -4,16 +4,6 @@ orbs:
 environment: &environment
   STACK_NAME: "ci-stack-${CIRCLE_WORKFLOW_ID}"
 
-commands:
-  destroy_environment:
-    parameters:
-      stack-name:
-        type: env_var_name
-        default: STACK_NAME
-    steps:
-      - aws-cli/install
-      - run: aws cloudformation delete-stack --stack-name "${<< parameters.stack-name >>}"
-
 jobs:
   create_infrastructure:
     executor: aws-cli/default
@@ -22,7 +12,8 @@ jobs:
     steps:
       - checkout
       - aws-cli/install
-      - run: ./.circleci/deploy-stack.sh "${STACK_NAME}" "${CIRCLE_WORKFLOW_ID}"
+      - run: ./.circleci/determine-env-color.sh | tee env-color.txt
+      - run: ./.circleci/deploy-stack.sh "${STACK_NAME}" "${CIRCLE_WORKFLOW_ID}" "$(cat ./env-color.txt)"
       - run: ./.circleci/create-inventory.sh "${CIRCLE_WORKFLOW_ID}"
       - save_cache:
           key: "inventory-{{ .Environment.CIRCLE_WORKFLOW_ID }}"
@@ -55,8 +46,26 @@ jobs:
     steps:
       - checkout
       - run: ./.circleci/smoke-test.rb
-      - destroy_environment:
+      - run:
+          command: ./.circleci/delete-stack.sh "${STACK_NAME}"
           when: on_fail
+  reroute_blue_green:
+    executor: aws-cli/default
+    environment:
+      <<: *environment
+    steps:
+      - checkout
+      - aws-cli/install
+      - run: echo "REROUTING!"
+  cleanup_previous_env:
+    executor: aws-cli/default
+    environment:
+      <<: *environment
+    steps:
+      - checkout
+      - aws-cli/install
+      - run:
+          command: ./.circleci/delete-previous-stack.sh
 workflows:
   version: 2
   deploy:

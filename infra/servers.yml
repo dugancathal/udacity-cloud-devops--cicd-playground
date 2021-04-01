@@ -2,6 +2,9 @@ Parameters:
   DeployTag:
     Description: Specifies the current deploy tag so we can rotate environments
     Type: String
+  EnvColor:
+    Description: The color of the current environment (blue/green)
+    Type: String
 Resources:
   Ec2Instance:
    Type: 'AWS::EC2::Instance'
