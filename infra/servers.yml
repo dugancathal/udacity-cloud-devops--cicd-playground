@@ -35,3 +35,11 @@ Resources:
          FromPort: '9292'
          ToPort: '9292'
          CidrIp: 0.0.0.0/0
+Outputs:
+  ServerDnsName:
+    Value:
+      Fn::GetAtt:
+        - Ec2Instance
+        - PublicDnsName
+    Export:
+      Name: !Sub "${EnvColor}-DnsName"
