@@ -1,13 +1,28 @@
 version: 2.1
 orbs:
   aws-cli: circleci/aws-cli@1.4.1
+environment: &environment
+  STACK_NAME: 'ci-stack'
+
+commands:
+  destroy_environment:
+    parameters:
+      stack-name:
+        type: env_var_name
+        default: STACK_NAME
+    steps:
+      - aws-cli/install
+      - run: aws cloudformation delete-stack --stack-name "${<< parameters.stack-name >>}"
+
 jobs:
   create_infrastructure:
     executor: aws-cli/default
+    environment:
+      <<: *environment
     steps:
       - checkout
       - aws-cli/install
-      - run: ./.circleci/deploy-stack.sh "ci-stack" "${CIRCLE_WORKFLOW_ID}"
+      - run: ./.circleci/deploy-stack.sh "${STACK_NAME}" "${CIRCLE_WORKFLOW_ID}"
       - run: ./.circleci/create-inventory.sh "${CIRCLE_WORKFLOW_ID}"
       - save_cache:
           key: "inventory-{{ .Environment.CIRCLE_WORKFLOW_ID }}"
@@ -15,6 +30,8 @@ jobs:
   deploy_app:
     docker:
       - image: circleci/python
+    environment:
+      <<: *environment
     steps:
       - checkout
       - restore_cache:
@@ -31,11 +48,15 @@ jobs:
             - "/usr/local/lib/python3.6/site-packages"
       - run: ./.circleci/deploy-app.sh
   smoke_test_app:
+    environment:
+      <<: *environment
     docker:
       - image: circleci/ruby
     steps:
       - checkout
       - run: ./.circleci/smoke-test.rb
+      - destroy_environment:
+          when: on_fail
 workflows:
   version: 2
   deploy:
