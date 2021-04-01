@@ -30,6 +30,12 @@ jobs:
             - ".venv"
             - "/usr/local/lib/python3.6/site-packages"
       - run: ./.circleci/deploy-app.sh
+  smoke_test_app:
+    docker:
+      - image: circleci/ruby
+    steps:
+      - checkout
+      - run: ./.circleci/smoke-test.rb
 workflows:
   version: 2
   deploy:
@@ -38,4 +44,7 @@ workflows:
       - deploy_app:
           requires: 
             - create_infrastructure
+      - smoke_test_app:
+          requires: 
+            - deploy_app
 
