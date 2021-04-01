@@ -8,7 +8,7 @@ jobs:
   create_infrastructure:
     executor: aws-cli/default
     environment:
-      <<: *environment
+      STACK_NAME: "ci-stack-${CIRCLE_WORKFLOW_ID}"
     steps:
       - checkout
       - aws-cli/install
@@ -22,7 +22,7 @@ jobs:
     docker:
       - image: circleci/python
     environment:
-      <<: *environment
+      STACK_NAME: "ci-stack-${CIRCLE_WORKFLOW_ID}"
     steps:
       - checkout
       - restore_cache:
@@ -40,7 +40,7 @@ jobs:
       - run: ./.circleci/deploy-app.sh
   smoke_test_app:
     environment:
-      <<: *environment
+      STACK_NAME: "ci-stack-${CIRCLE_WORKFLOW_ID}"
     docker:
       - image: circleci/ruby
     steps:
@@ -52,7 +52,8 @@ jobs:
   reroute_blue_green:
     executor: aws-cli/default
     environment:
-      <<: *environment
+      STACK_NAME: "ci-stack-${CIRCLE_WORKFLOW_ID}"
+    docker:
     steps:
       - checkout
       - aws-cli/install
@@ -60,7 +61,8 @@ jobs:
   cleanup_previous_env:
     executor: aws-cli/default
     environment:
-      <<: *environment
+      STACK_NAME: "ci-stack-${CIRCLE_WORKFLOW_ID}"
+    docker:
     steps:
       - checkout
       - aws-cli/install
