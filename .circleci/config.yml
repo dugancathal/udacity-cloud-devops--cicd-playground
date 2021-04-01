@@ -2,18 +2,20 @@ version: 2.1
 orbs:
   aws-cli: circleci/aws-cli@1.4.1
 environment: &environment
-  STACK_NAME: "ci-stack-${CIRCLE_WORKFLOW_ID}"
+  STACK_NAME_PREFIX: "ci-stack"
 
 jobs:
   create_infrastructure:
     executor: aws-cli/default
     environment:
-      STACK_NAME: "ci-stack-${CIRCLE_WORKFLOW_ID}"
+      <<: *environment
     steps:
       - checkout
       - aws-cli/install
       - run: ./.circleci/determine-env-color.sh | tee env-color.txt
-      - run: ./.circleci/deploy-stack.sh "${STACK_NAME}" "${CIRCLE_WORKFLOW_ID}" "$(cat ./env-color.txt)"
+      - run: |
+          STACK_NAME="${STACK_NAME_PREFIX}-${CIRCLE_WORKFLOW_ID}"
+          ./.circleci/deploy-stack.sh "${STACK_NAME}" "${CIRCLE_WORKFLOW_ID}" "$(cat ./env-color.txt)"
       - run: ./.circleci/create-inventory.sh "${CIRCLE_WORKFLOW_ID}"
       - save_cache:
           key: "inventory-{{ .Environment.CIRCLE_WORKFLOW_ID }}"
@@ -22,7 +24,7 @@ jobs:
     docker:
       - image: circleci/python
     environment:
-      STACK_NAME: "ci-stack-${CIRCLE_WORKFLOW_ID}"
+      <<: *environment
     steps:
       - checkout
       - restore_cache:
@@ -40,19 +42,21 @@ jobs:
       - run: ./.circleci/deploy-app.sh
   smoke_test_app:
     environment:
-      STACK_NAME: "ci-stack-${CIRCLE_WORKFLOW_ID}"
+      <<: *environment
     docker:
       - image: circleci/ruby
     steps:
       - checkout
       - run: ./.circleci/smoke-test.rb
       - run:
-          command: ./.circleci/delete-stack.sh "${STACK_NAME}"
+          command: |
+              STACK_NAME="${STACK_NAME_PREFIX}-${CIRCLE_WORKFLOW_ID}"
+              ./.circleci/delete-stack.sh "${STACK_NAME}"
           when: on_fail
   reroute_blue_green:
     executor: aws-cli/default
     environment:
-      STACK_NAME: "ci-stack-${CIRCLE_WORKFLOW_ID}"
+      <<: *environment
     steps:
       - checkout
       - aws-cli/install
@@ -60,7 +64,7 @@ jobs:
   cleanup_previous_env:
     executor: aws-cli/default
     environment:
-      STACK_NAME: "ci-stack-${CIRCLE_WORKFLOW_ID}"
+      <<: *environment
     steps:
       - checkout
       - aws-cli/install
