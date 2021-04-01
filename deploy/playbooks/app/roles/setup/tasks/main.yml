@@ -8,6 +8,7 @@
 - name: Install app
   shell: git clone https://github.com/dugancathal/udacity-cloud-devops--cicd-playground server
 - name: Install dependencies
+  become: true
   shell: cd server/app && gem install bundler && bundle check || bundle install
 - name: Start server
-  shell: rackup -D -o 0.0.0.0 -p 9292
+  shell: cd server/app && bundle exec rackup -D -o 0.0.0.0 -p 9292
