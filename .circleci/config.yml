@@ -17,8 +17,8 @@ jobs:
     steps:
       - checkout
       - aws-cli/install
-      - run: ./.circleci/determine-env-color.sh | tee env-color.txt
       - set-stack-name
+      - run: ./.circleci/determine-env-color.sh "$(cat /tmp/stack-name)" | tee env-color.txt
       - run: |
           ./.circleci/deploy-stack.sh "$(cat /tmp/stack-name)" "${CIRCLE_WORKFLOW_ID}" "$(cat ./env-color.txt)"
       - run: ./.circleci/create-inventory.sh "${CIRCLE_WORKFLOW_ID}"
@@ -53,6 +53,7 @@ jobs:
     steps:
       - checkout
       - run: ./.circleci/smoke-test.rb
+      - set-stack-name
       - run:
           command: |
               ./.circleci/delete-stack.sh "$(cat /tmp/stack-name)"
@@ -72,6 +73,7 @@ jobs:
     steps:
       - checkout
       - aws-cli/install
+      - set-stack-name
       - run:
           command: |
               ./.circleci/delete-previous-stack.sh "$(cat /tmp/stack-name)"
