@@ -77,4 +77,9 @@ workflows:
       - smoke_test_app:
           requires: 
             - deploy_app
-
+      - reroute_blue_green:
+          requires: 
+            - smoke_test_app
+      - cleanup_previous_env:
+          requires: 
+            - reroute_blue_green
