@@ -2,7 +2,7 @@ version: 2.1
 orbs:
   aws-cli: circleci/aws-cli@1.4.1
 environment: &environment
-  STACK_NAME: 'ci-stack'
+  STACK_NAME: "ci-stack-${CIRCLE_WORKFLOW_ID}"
 
 commands:
   destroy_environment:
