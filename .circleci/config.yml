@@ -4,6 +4,11 @@ orbs:
 environment: &environment
   STACK_NAME_PREFIX: "ci-stack"
 
+commands:
+  set-stack-name:
+    steps:
+      - run: echo "${STACK_NAME_PREFIX}-${CIRCLE_WORKFLOW_ID}" > /tmp/stack-name
+
 jobs:
   create_infrastructure:
     executor: aws-cli/default
@@ -13,9 +18,9 @@ jobs:
       - checkout
       - aws-cli/install
       - run: ./.circleci/determine-env-color.sh | tee env-color.txt
+      - set-stack-name
       - run: |
-          STACK_NAME="${STACK_NAME_PREFIX}-${CIRCLE_WORKFLOW_ID}"
-          ./.circleci/deploy-stack.sh "${STACK_NAME}" "${CIRCLE_WORKFLOW_ID}" "$(cat ./env-color.txt)"
+          ./.circleci/deploy-stack.sh "$(cat /tmp/stack-name)" "${CIRCLE_WORKFLOW_ID}" "$(cat ./env-color.txt)"
       - run: ./.circleci/create-inventory.sh "${CIRCLE_WORKFLOW_ID}"
       - save_cache:
           key: "inventory-{{ .Environment.CIRCLE_WORKFLOW_ID }}"
@@ -50,8 +55,7 @@ jobs:
       - run: ./.circleci/smoke-test.rb
       - run:
           command: |
-              STACK_NAME="${STACK_NAME_PREFIX}-${CIRCLE_WORKFLOW_ID}"
-              ./.circleci/delete-stack.sh "${STACK_NAME}"
+              ./.circleci/delete-stack.sh "$(cat /tmp/stack-name)"
           when: on_fail
   reroute_blue_green:
     executor: aws-cli/default
@@ -70,8 +74,7 @@ jobs:
       - aws-cli/install
       - run:
           command: |
-              STACK_NAME="${STACK_NAME_PREFIX}-${CIRCLE_WORKFLOW_ID}"
-              ./.circleci/delete-previous-stack.sh "${STACK_NAME}"
+              ./.circleci/delete-previous-stack.sh "$(cat /tmp/stack-name)"
 workflows:
   version: 2
   deploy:
