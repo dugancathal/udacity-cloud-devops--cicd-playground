@@ -69,7 +69,9 @@ jobs:
       - checkout
       - aws-cli/install
       - run:
-          command: ./.circleci/delete-previous-stack.sh
+          command: |
+              STACK_NAME="${STACK_NAME_PREFIX}-${CIRCLE_WORKFLOW_ID}"
+              ./.circleci/delete-previous-stack.sh "${STACK_NAME}"
 workflows:
   version: 2
   deploy:

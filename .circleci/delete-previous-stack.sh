@@ -2,8 +2,10 @@
 
 set -xue
 
+CURRENT_STACK_NAME=$1
+
 PREVIOUS_STACK_NAME="$(aws cloudformation describe-stacks \
-  --query "Stacks[?Parameters[?ParameterKey == 'EnvColor']].StackName" \
+  --query "Stacks[?Parameters[?ParameterKey == 'EnvColor'] && StackName != '${CURRENT_STACK_NAME}'].StackName" \
   --output text \
 )"
 
